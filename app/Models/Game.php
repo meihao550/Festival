@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Game extends Model
 {
-    protected $fillable = ['started_at', 'ended_at', 'winner_player_id'];
+    protected $fillable = ['team_id', 'started_at', 'ended_at', 'winner_player_id'];
 
     protected function casts(): array
     {
@@ -16,6 +16,11 @@ class Game extends Model
             'started_at' => 'datetime',
             'ended_at'   => 'datetime',
         ];
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
     }
 
     public function players(): HasMany

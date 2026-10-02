@@ -12,16 +12,16 @@ class Player extends Model
     public const STATUS_ACTIVE = 'active';
     public const STATUS_DISQUALIFIED = 'disqualified';
 
-    protected $fillable = ['game_id', 'participant_id', 'position', 'status'];
+    protected $fillable = ['game_id', 'team_member_id', 'position', 'status'];
 
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
     }
 
-    public function participant(): BelongsTo
+    public function teamMember(): BelongsTo
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(TeamMember::class);
     }
 
     public function turns(): HasMany
@@ -46,6 +46,6 @@ class Player extends Model
 
     public function displayName(): string
     {
-        return $this->participant?->name ?? '(不明)';
+        return $this->teamMember?->name ?? '(不明)';
     }
 }

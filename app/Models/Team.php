@@ -5,23 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Participant extends Model
+class Team extends Model
 {
     protected $fillable = ['name'];
 
-    public function scores(): HasMany
+    public function members(): HasMany
     {
-        return $this->hasMany(Score::class);
+        return $this->hasMany(TeamMember::class);
     }
 
-    public function players(): HasMany
+    public function games(): HasMany
     {
-        return $this->hasMany(Player::class);
+        return $this->hasMany(Game::class);
     }
 
     /**
      * 名前の並べ替え用キー: 半角カナ → 全角カナ (濁点合成) → ひらがな に正規化
-     * これにより「あいうえお順」でソートできる
      */
     public static function kanaKey(string $name): string
     {

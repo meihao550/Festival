@@ -3,21 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', '文化祭ランキング')</title>
+    <title>@yield('title', '文化祭ランキング') | 文化祭ランキング</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+            font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
             margin: 0;
             background: #f7f7fb;
             color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         header {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: #fff;
-            padding: 1.5rem;
+            padding: 1.1rem 1.5rem 1.3rem;
         }
-        header h1 { margin: 0; font-size: 1.6rem; }
+        header .site-name {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            letter-spacing: 0.08em;
+            text-transform: none;
+        }
+        header .page-title {
+            margin: 0.2rem 0 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
         nav {
             display: flex;
             flex-wrap: wrap;
@@ -109,6 +125,9 @@
             gap: 0.75rem;
             margin-top: 1rem;
         }
+        .team-cards.single-column {
+            grid-template-columns: 1fr;
+        }
         .team-card { padding: 1rem; }
         .team-card.is-current { outline: 3px solid #4338ca; }
         .team-card.is-dq { opacity: 0.55; }
@@ -161,6 +180,115 @@
         }
         .participant-chip input { width: auto !important; margin: 0 !important; }
         #add-team { background: transparent !important; color: #4338ca !important; border: 1px dashed #a5b4fc !important; }
+        .crown-count { font-size: 1.1rem; font-weight: 700; color: #d97706; white-space: nowrap; }
+        .team-row {
+            border-top: 1px solid #f3f4f6;
+            padding: 0.75rem 0;
+        }
+        .team-row:first-child { border-top: none; padding-top: 0.25rem; }
+        .team-row-head { display: flex; align-items: center; gap: 0.5rem; }
+        .member-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.65rem;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+        .chip-remove {
+            margin: 0 !important;
+            padding: 0 0.25rem !important;
+            background: transparent !important;
+            color: #4338ca !important;
+            font-size: 0.9rem !important;
+            border: none !important;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .chip-remove:hover { color: #991b1b !important; }
+        .add-member-form {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+        .add-member-form input {
+            width: auto !important;
+            flex: 1;
+            padding: 0.4rem 0.6rem !important;
+        }
+        .add-member-form button {
+            margin: 0 !important;
+            padding: 0.4rem 0.9rem !important;
+            font-size: 0.85rem !important;
+        }
+        .member-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.35rem;
+            align-items: center;
+        }
+        .member-row input {
+            width: auto !important;
+            flex: 1;
+        }
+        .member-row .remove-row {
+            margin: 0 !important;
+            padding: 0.35rem 0.65rem !important;
+            font-size: 1rem !important;
+        }
+        .team-open-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #fff !important;
+            color: #1f2937 !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 12px !important;
+            cursor: pointer;
+            padding: 0.9rem 1rem !important;
+            margin: 0 !important;
+            font-size: 1rem !important;
+            transition: box-shadow 0.15s, transform 0.15s;
+        }
+        .team-open-btn:hover {
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);
+            transform: translateY(-1px);
+        }
+        dialog.team-modal {
+            border: none;
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            max-width: min(640px, 95vw);
+            width: 95vw;
+            max-height: 85vh;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.2);
+        }
+        dialog.team-modal::backdrop {
+            background: rgba(15, 23, 42, 0.4);
+        }
+        .modal-close-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin: -0.5rem -0.5rem 0.5rem 0;
+        }
+        .modal-close-wrap button {
+            margin: 0 !important;
+            padding: 0.3rem 0.75rem !important;
+            font-size: 0.85rem !important;
+        }
+        .team-section {
+            border-top: 1px solid #f3f4f6;
+            padding: 0.75rem 0;
+        }
+        .team-section:first-of-type { border-top: none; padding-top: 0.25rem; }
+        .team-section-title {
+            margin: 0 0 0.4rem 0;
+            font-size: 1.05rem;
+            color: #4338ca;
+        }
         .alert {
             background: #ecfdf5;
             color: #047857;
@@ -182,7 +310,8 @@
 </head>
 <body>
     <header>
-        <h1>文化祭ランキング</h1>
+        <div class="site-name">文化祭ランキング</div>
+        <h1 class="page-title">@yield('title', '総合ランキング')</h1>
     </header>
     <nav>
         <a href="{{ route('rankings.overall') }}"
@@ -199,8 +328,8 @@
            class="{{ request()->routeIs('tools.timer') ? 'active' : '' }}">タイマー</a>
         <a href="{{ route('rules.molkky') }}"
            class="{{ request()->routeIs('rules.molkky') ? 'active' : '' }}">ルール</a>
-        <a href="{{ route('participants.create') }}"
-           class="{{ request()->routeIs('participants.create') ? 'active' : '' }}">名前登録</a>
+        <a href="{{ route('teams.index') }}"
+           class="{{ request()->routeIs('teams.*') ? 'active' : '' }}">チーム登録</a>
     </nav>
     <main>
         @if(session('status'))

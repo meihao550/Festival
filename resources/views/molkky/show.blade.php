@@ -1,14 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'モルック ゲーム #' . $game->id)
+@section('title', $game->team?->name . ' のモルック #' . $game->id)
 
 @section('content')
-    @if($game->isFinished())
-        <div class="card">
-            <h2 style="margin-top:0;">ゲーム終了</h2>
+    <div class="card">
+        <h2 style="margin-top:0;">{{ $game->team?->name ?? 'チーム?' }} の内輪戦</h2>
+        @if($game->isFinished())
             <p>優勝: <strong>{{ $game->winnerPlayer?->displayName() ?? '-' }}</strong></p>
+        @elseif($currentPlayer)
+            <p>現在のターン: <strong style="color:#4338ca;">{{ $currentPlayer->displayName() }}</strong></p>
+        @endif
+    </div>
 
-            <table style="margin-top:1rem;">
+    @if($game->isFinished())
+        <div class="card" style="margin-top:1rem;">
+            <h3 style="margin-top:0;">チーム内順位</h3>
+            <table>
                 <thead>
                     <tr>
                         <th>順位</th>
@@ -44,13 +51,6 @@
             </form>
         </div>
     @else
-        <div class="card">
-            <h2 style="margin-top:0;">進行中 (ゲーム #{{ $game->id }})</h2>
-            @if($currentPlayer)
-                <p>現在のターン: <strong style="color:#4338ca;">{{ $currentPlayer->displayName() }}</strong></p>
-            @endif
-        </div>
-
         <div class="team-cards">
             @foreach($game->players as $p)
                 @php

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
-use App\Models\Participant;
 use App\Models\Player;
+use App\Models\Team;
 use App\Services\MolkkyScoring;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -17,37 +17,46 @@ class MolkkyGameController extends Controller
 
     public function index(): View
     {
+        $teams = Team::with('members')
+            ->get()
+            ->sortBy(fn(Team $t) => Team::kanaKey($t->name), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
         $games = Game::query()
-            ->with('winnerPlayer.participant')
+            ->with(['team', 'winnerPlayer.teamMember'])
             ->latest('started_at')
             ->limit(20)
             ->get();
 
-        return view('molkky.index', ['games' => $games]);
-    }
-
-    public function create(): View
-    {
-        $participants = Participant::all()
-            ->sortBy(fn($p) => Participant::kanaKey($p->name), SORT_NATURAL | SORT_FLAG_CASE)
-            ->values();
-
-        return view('molkky.create', ['participants' => $participants]);
+        return view('molkky.index', [
+            'teams' => $teams,
+            'games' => $games,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'participant_ids'   => ['required', 'array', 'min:2'],
-            'participant_ids.*' => ['integer', 'exists:participants,id'],
+            'team_id' => ['required', 'integer', 'exists:teams,id'],
         ]);
 
-        $game = DB::transaction(function () use ($data) {
-            $game = Game::create(['started_at' => now()]);
+        $team = Team::with('members')->findOrFail($data['team_id']);
 
-            foreach (array_values(array_unique($data['participant_ids'])) as $i => $participantId) {
+        if ($team->members->count() < 2) {
+            return redirect()
+                ->route('molkky.index')
+                ->withErrors(['team_id' => "「{$team->name}」はメンバーが 2 人未満のためゲームを開始できません。"]);
+        }
+
+        $game = DB::transaction(function () use ($team) {
+            $game = Game::create([
+                'team_id'    => $team->id,
+                'started_at' => now(),
+            ]);
+
+            foreach ($team->members->values() as $i => $member) {
                 $game->players()->create([
-                    'participant_id' => $participantId,
+                    'team_member_id' => $member->id,
                     'position'       => $i,
                     'status'         => Player::STATUS_ACTIVE,
                 ]);
@@ -61,7 +70,7 @@ class MolkkyGameController extends Controller
 
     public function show(Game $game): View
     {
-        $game->load(['players.participant', 'players.turns', 'winnerPlayer.participant']);
+        $game->load(['team', 'players.teamMember', 'players.turns', 'winnerPlayer.teamMember']);
 
         return view('molkky.show', [
             'game'          => $game,

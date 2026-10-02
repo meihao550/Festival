@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Competition;
-use App\Models\Participant;
 use App\Models\Score;
+use App\Models\Team;
+use App\Models\TeamMember;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,48 +16,57 @@ class RankingController extends Controller
     {
         $competitions = Competition::orderBy('id')->get();
 
-        $participants = Participant::query()
-            ->with('scores:id,participant_id,competition_id,rank')
-            ->withSum('scores as total_rank', 'rank')
-            ->withCount('scores as scores_count')
-            ->get();
-
-        // 全競技を終えた人を上位、同じなら合計順位の低い順
-        $ranked = $participants
-            ->sortBy([
-                fn($a, $b) => ($b->scores_count <=> $a->scores_count),
-                fn($a, $b) => ($a->total_rank <=> $b->total_rank),
-                fn($a, $b) => strcmp($a->name, $b->name),
-            ])
+        $teams = Team::query()
+            ->with(['members' => function ($q) {
+                $q->with('scores')
+                  ->withCount(['scores as first_place_count' => fn($q) => $q->where('rank', 1)]);
+            }])
+            ->get()
+            ->sortBy(fn(Team $t) => Team::kanaKey($t->name), SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
+        foreach ($teams as $team) {
+            $sorted = $team->members
+                ->sortBy([
+                    fn($a, $b) => $b->first_place_count <=> $a->first_place_count,
+                    fn($a, $b) => strcmp(Team::kanaKey($a->name), Team::kanaKey($b->name)),
+                ])
+                ->values();
+
+            $prevCount = null;
+            $prevRank  = 0;
+            foreach ($sorted as $i => $m) {
+                if ($m->first_place_count !== $prevCount) {
+                    $rank = $i + 1;
+                    $prevCount = $m->first_place_count;
+                    $prevRank  = $rank;
+                } else {
+                    $rank = $prevRank;
+                }
+                $m->display_rank = $rank;
+            }
+            $team->ranked_members = $sorted;
+        }
+
         return view('rankings.overall', [
-            'participants' => $ranked,
+            'teams'        => $teams,
             'competitions' => $competitions,
         ]);
     }
 
     public function competition(Competition $competition): View
     {
-        $existingByParticipant = $competition->scores()
+        $teams = Team::query()
+            ->with(['members' => function ($q) use ($competition) {
+                $q->with(['scores' => fn($q) => $q->where('competition_id', $competition->id)]);
+            }])
             ->get()
-            ->keyBy('participant_id');
-
-        $participants = Participant::all()->map(function ($p) use ($existingByParticipant) {
-            $p->current_rank = $existingByParticipant[$p->id]->rank ?? null;
-            return $p;
-        });
-
-        // 既に順位がついている人を上に、順位の昇順、同じなら名前のあいうえお順
-        $sorted = $participants->sortBy([
-            fn($a, $b) => (($a->current_rank === null) <=> ($b->current_rank === null)),
-            fn($a, $b) => ($a->current_rank <=> $b->current_rank),
-            fn($a, $b) => strcmp(Participant::kanaKey($a->name), Participant::kanaKey($b->name)),
-        ])->values();
+            ->sortBy(fn(Team $t) => Team::kanaKey($t->name), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         return view('rankings.competition', [
             'competition'  => $competition,
-            'participants' => $sorted,
+            'teams'        => $teams,
             'competitions' => Competition::orderBy('id')->get(),
         ]);
     }
@@ -68,13 +78,13 @@ class RankingController extends Controller
             'ranks.*' => ['nullable', 'integer', 'min:1', 'max:999'],
         ]);
 
-        $validIds = Participant::whereIn('id', array_keys($data['ranks'] ?? []))->pluck('id');
+        $validIds = TeamMember::whereIn('id', array_keys($data['ranks'] ?? []))->pluck('id');
 
-        foreach ($validIds as $participantId) {
-            $rank = $data['ranks'][$participantId] ?? null;
+        foreach ($validIds as $memberId) {
+            $rank = $data['ranks'][$memberId] ?? null;
 
             if ($rank === null || $rank === '') {
-                Score::where('participant_id', $participantId)
+                Score::where('team_member_id', $memberId)
                     ->where('competition_id', $competition->id)
                     ->delete();
                 continue;
@@ -82,7 +92,7 @@ class RankingController extends Controller
 
             Score::updateOrCreate(
                 [
-                    'participant_id' => $participantId,
+                    'team_member_id' => $memberId,
                     'competition_id' => $competition->id,
                 ],
                 ['rank' => $rank],
@@ -97,10 +107,10 @@ class RankingController extends Controller
     public function reset(): RedirectResponse
     {
         Score::query()->delete();
-        Participant::query()->delete();
+        Team::query()->delete();
 
         return redirect()
             ->route('rankings.overall')
-            ->with('status', 'ゲームをリセットしました。');
+            ->with('status', 'データをリセットしました。');
     }
 }

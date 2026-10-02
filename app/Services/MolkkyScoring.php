@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Competition;
 use App\Models\Game;
 use App\Models\Player;
+use App\Models\Score;
 use App\Models\Turn;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -42,8 +44,12 @@ class MolkkyScoring
                     'ended_at'         => now(),
                     'winner_player_id' => $player->id,
                 ]);
+                $this->syncMolkkyScores($game);
             } else {
-                $this->endIfOnlyOnePlayerLeft($game);
+                $endedByElimination = $this->endIfOnlyOnePlayerLeft($game);
+                if ($endedByElimination) {
+                    $this->syncMolkkyScores($game);
+                }
             }
 
             return $turn;
@@ -74,6 +80,7 @@ class MolkkyScoring
                     'ended_at'         => null,
                     'winner_player_id' => null,
                 ]);
+                $this->clearMolkkyScores($game);
             }
         });
     }
@@ -100,7 +107,7 @@ class MolkkyScoring
 
     public function ranking(Game $game): Collection
     {
-        $players = $game->players()->with('participant')->get();
+        $players = $game->players()->with('teamMember')->get();
 
         $playersWithTotals = $players->map(function (Player $p) {
             $p->setAttribute('cached_total', $p->currentTotal());
@@ -150,7 +157,7 @@ class MolkkyScoring
         }
     }
 
-    private function endIfOnlyOnePlayerLeft(Game $game): void
+    private function endIfOnlyOnePlayerLeft(Game $game): bool
     {
         $activePlayers = $game->players()->active()->get();
 
@@ -159,6 +166,41 @@ class MolkkyScoring
                 'ended_at'         => now(),
                 'winner_player_id' => $activePlayers->first()->id,
             ]);
+            return true;
         }
+
+        return false;
+    }
+
+    private function syncMolkkyScores(Game $game): void
+    {
+        $molkky = Competition::where('name', 'モルック')->first();
+        if (! $molkky) {
+            return;
+        }
+
+        foreach ($this->ranking($game) as $player) {
+            Score::updateOrCreate(
+                [
+                    'team_member_id' => $player->team_member_id,
+                    'competition_id' => $molkky->id,
+                ],
+                ['rank' => $player->final_rank],
+            );
+        }
+    }
+
+    private function clearMolkkyScores(Game $game): void
+    {
+        $molkky = Competition::where('name', 'モルック')->first();
+        if (! $molkky) {
+            return;
+        }
+
+        $memberIds = $game->players()->pluck('team_member_id');
+
+        Score::where('competition_id', $molkky->id)
+            ->whereIn('team_member_id', $memberIds)
+            ->delete();
     }
 }

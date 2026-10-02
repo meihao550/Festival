@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Score extends Model
 {
-    protected $fillable = ['participant_id', 'competition_id', 'rank'];
+    protected $fillable = ['team_member_id', 'competition_id', 'rank'];
 
     protected function casts(): array
     {
@@ -16,9 +16,9 @@ class Score extends Model
         ];
     }
 
-    public function participant(): BelongsTo
+    public function teamMember(): BelongsTo
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(TeamMember::class);
     }
 
     public function competition(): BelongsTo
