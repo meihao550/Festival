@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 旧スキーマの残骸を掃除 (turns→players→games の順で drop)
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('turns');
+        Schema::dropIfExists('players');
+        Schema::dropIfExists('games');
+        Schema::enableForeignKeyConstraints();
+
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->constrained()->cascadeOnDelete();

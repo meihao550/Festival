@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('turns');
+
         Schema::create('turns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('player_id')->constrained()->cascadeOnDelete();

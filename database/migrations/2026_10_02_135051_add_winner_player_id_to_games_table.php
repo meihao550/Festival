@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('games', 'winner_player_id')) {
+            return; // 既に存在する場合はスキップ (idempotent)
+        }
+
         Schema::table('games', function (Blueprint $table) {
             $table->foreignId('winner_player_id')
                 ->nullable()
