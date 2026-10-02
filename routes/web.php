@@ -30,6 +30,7 @@ Route::prefix('molkky')->name('molkky.')->group(function () {
 });
 
 Route::view('/rules/molkky', 'rules.molkky')->name('rules.molkky');
+Route::view('/timer', 'tools.timer')->name('tools.timer');
 
 // UI には出していないが、必要時に手動で叩けるよう維持
 Route::post('/reset', [RankingController::class, 'reset'])->name('rankings.reset');

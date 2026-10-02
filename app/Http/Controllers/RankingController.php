@@ -42,16 +42,16 @@ class RankingController extends Controller
             ->get()
             ->keyBy('participant_id');
 
-        $participants = Participant::orderBy('name')->get()->map(function ($p) use ($existingByParticipant) {
+        $participants = Participant::all()->map(function ($p) use ($existingByParticipant) {
             $p->current_rank = $existingByParticipant[$p->id]->rank ?? null;
             return $p;
         });
 
-        // 既に順位がついている人を上に、順位の昇順で表示
+        // 既に順位がついている人を上に、順位の昇順、同じなら名前のあいうえお順
         $sorted = $participants->sortBy([
             fn($a, $b) => (($a->current_rank === null) <=> ($b->current_rank === null)),
             fn($a, $b) => ($a->current_rank <=> $b->current_rank),
-            fn($a, $b) => strcmp($a->name, $b->name),
+            fn($a, $b) => strcmp(Participant::kanaKey($a->name), Participant::kanaKey($b->name)),
         ])->values();
 
         return view('rankings.competition', [

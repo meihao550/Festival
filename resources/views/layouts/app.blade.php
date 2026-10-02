@@ -195,6 +195,8 @@
         @endforeach
         <a href="{{ route('molkky.index') }}"
            class="admin {{ request()->routeIs('molkky.*') ? 'active' : '' }}">モルック</a>
+        <a href="{{ route('tools.timer') }}"
+           class="{{ request()->routeIs('tools.timer') ? 'active' : '' }}">タイマー</a>
         <a href="{{ route('rules.molkky') }}"
            class="{{ request()->routeIs('rules.molkky') ? 'active' : '' }}">ルール</a>
         <a href="{{ route('participants.create') }}"

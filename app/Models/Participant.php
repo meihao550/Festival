@@ -18,4 +18,13 @@ class Participant extends Model
     {
         return $this->hasMany(Player::class);
     }
+
+    /**
+     * 名前の並べ替え用キー: 半角カナ → 全角カナ (濁点合成) → ひらがな に正規化
+     * これにより「あいうえお順」でソートできる
+     */
+    public static function kanaKey(string $name): string
+    {
+        return mb_convert_kana(mb_convert_kana($name, 'KV'), 'c');
+    }
 }

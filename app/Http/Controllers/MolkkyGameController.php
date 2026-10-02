@@ -28,9 +28,11 @@ class MolkkyGameController extends Controller
 
     public function create(): View
     {
-        return view('molkky.create', [
-            'participants' => Participant::orderBy('name')->get(),
-        ]);
+        $participants = Participant::all()
+            ->sortBy(fn($p) => Participant::kanaKey($p->name), SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        return view('molkky.create', ['participants' => $participants]);
     }
 
     public function store(Request $request): RedirectResponse
