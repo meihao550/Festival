@@ -53,13 +53,13 @@
                                 <th>メンバー</th>
                                 <th class="rank-col">1位の数</th>
                                 @foreach($competitions as $c)
-                                    <th class="rank-col">{{ $c->name }}</th>
+                                    <th class="rank-col">{{ $c->label() }}</th>
                                 @endforeach
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($team->ranked_members as $m)
-                                @php $byComp = $m->scores->keyBy('competition_id'); @endphp
+                                @php $byComp = $m->scores->keyBy(fn($s) => $s->competition_id->value); @endphp
                                 <tr>
                                     <td class="rank rank-{{ $m->display_rank }}">{{ $m->display_rank }}</td>
                                     <td><strong>{{ $m->name }}</strong></td>
@@ -72,8 +72,8 @@
                                     </td>
                                     @foreach($competitions as $c)
                                         <td class="rank-col">
-                                            @if(isset($byComp[$c->id]))
-                                                {{ $byComp[$c->id]->rank }}位
+                                            @if(isset($byComp[$c->value]))
+                                                {{ $byComp[$c->value]->rank }}位
                                             @else
                                                 <span style="color:#d1d5db;">—</span>
                                             @endif

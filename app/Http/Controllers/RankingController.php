@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Competition;
+use App\Enums\Competition;
 use App\Models\Score;
 use App\Models\Team;
 use App\Models\TeamMember;
@@ -14,7 +14,7 @@ class RankingController extends Controller
 {
     public function overall(): View
     {
-        $competitions = Competition::orderBy('id')->get();
+        $competitions = Competition::cases();
 
         $teams = Team::query()
             ->with(['members' => function ($q) {
@@ -58,16 +58,15 @@ class RankingController extends Controller
     {
         $teams = Team::query()
             ->with(['members' => function ($q) use ($competition) {
-                $q->with(['scores' => fn($q) => $q->where('competition_id', $competition->id)]);
+                $q->with(['scores' => fn($q) => $q->where('competition_id', $competition->value)]);
             }])
             ->get()
             ->sortBy(fn(Team $t) => Team::kanaKey($t->name), SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         return view('rankings.competition', [
-            'competition'  => $competition,
-            'teams'        => $teams,
-            'competitions' => Competition::orderBy('id')->get(),
+            'competition' => $competition,
+            'teams'       => $teams,
         ]);
     }
 
@@ -85,7 +84,7 @@ class RankingController extends Controller
 
             if ($rank === null || $rank === '') {
                 Score::where('team_member_id', $memberId)
-                    ->where('competition_id', $competition->id)
+                    ->where('competition_id', $competition->value)
                     ->delete();
                 continue;
             }
@@ -93,7 +92,7 @@ class RankingController extends Controller
             Score::updateOrCreate(
                 [
                     'team_member_id' => $memberId,
-                    'competition_id' => $competition->id,
+                    'competition_id' => $competition->value,
                 ],
                 ['rank' => $rank],
             );
@@ -101,7 +100,7 @@ class RankingController extends Controller
 
         return redirect()
             ->route('rankings.competition', $competition)
-            ->with('status', "{$competition->name} の順位を更新しました。");
+            ->with('status', "{$competition->label()} の順位を更新しました。");
     }
 
     public function reset(): RedirectResponse

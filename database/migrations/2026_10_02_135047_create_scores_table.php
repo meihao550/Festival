@@ -16,12 +16,14 @@ return new class extends Migration
         Schema::dropIfExists('scores');
         Schema::dropIfExists('participants');
         Schema::dropIfExists('team_participants');
+        Schema::dropIfExists('competitions'); // enum化で不要になった
         Schema::enableForeignKeyConstraints();
 
         Schema::create('scores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_member_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('competition_id')->constrained()->cascadeOnDelete();
+            // 競技は App\Enums\Competition の値 (int)。FK なし
+            $table->unsignedTinyInteger('competition_id');
             $table->unsignedSmallInteger('rank');
             $table->timestamps();
 

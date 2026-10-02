@@ -3,12 +3,6 @@
 @section('title', 'モルック')
 
 @section('content')
-    <div class="card">
-        <h2 style="margin-top:0;">モルック スコアラー</h2>
-        <p style="color:#6b7280; font-size:0.9rem; margin-top:-0.5rem;">
-            チームを選んで「ゲーム開始」をタップすると、そのチームのメンバー同士で順位を争うモルックが始まります。
-        </p>
-    </div>
 
     @if($teams->isEmpty())
         <div class="card" style="margin-top:1rem;">
@@ -18,7 +12,7 @@
             </div>
         </div>
     @else
-        <div class="team-cards single-column" style="margin-top:1rem;">
+        <div class="team-cards single-column" style="margin-top:2rem;">
             @foreach($teams as $t)
                 @php $canStart = $t->members->count() >= 2; @endphp
                 <div class="card team-card">

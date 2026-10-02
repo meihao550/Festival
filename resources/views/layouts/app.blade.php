@@ -306,24 +306,102 @@
             margin-bottom: 1rem;
         }
         .errors ul { margin: 0.25rem 0 0 1rem; padding: 0; }
+
+        /* 順位セル: 現在値 + 修正/入力ボタン */
+        .rank-cell { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; }
+        .rank-display {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1f2937;
+            font-variant-numeric: tabular-nums;
+        }
+        .rank-input-btn {
+            padding: 0.4rem 0.9rem !important;
+            background: #4338ca !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            cursor: pointer;
+        }
+        .rank-input-btn:hover { background: #3730a3 !important; }
+        .rank-edit-btn {
+            padding: 0.3rem 0.7rem !important;
+            background: #eef2ff !important;
+            color: #4338ca !important;
+            border: 1px solid #c7d2fe !important;
+            border-radius: 999px !important;
+            font-size: 0.8rem !important;
+            font-weight: 500 !important;
+            margin: 0 !important;
+            cursor: pointer;
+        }
+        .rank-edit-btn:hover { background: #e0e7ff !important; }
+
+        /* 順位ピッカーダイアログ */
+        dialog.rank-pad-modal {
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            width: min(340px, 92vw);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+        }
+        dialog.rank-pad-modal::backdrop { background: rgba(15,23,42,0.55); }
+        .rank-pad-title {
+            font-size: 1rem;
+            color: #374151;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+        .rank-pad-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+            gap: 0.5rem;
+        }
+        .rank-pad-grid button {
+            margin: 0 !important;
+            padding: 1.1rem 0 !important;
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
+            background: #ffffff !important;
+            color: #1f2937 !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 10px !important;
+        }
+        .rank-pad-grid button:hover { background: #eef2ff !important; border-color: #c7d2fe !important; color: #3730a3 !important; }
+        .rank-pad-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .rank-pad-actions button {
+            flex: 1;
+            margin: 0 !important;
+            padding: 0.7rem 0 !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="site-name">文化祭ランキング</div>
+        <div class="site-name">文化祭クラス企画Webサイト</div>
         <h1 class="page-title">@yield('title', '総合ランキング')</h1>
     </header>
     <nav>
         <a href="{{ route('rankings.overall') }}"
            class="{{ request()->routeIs('rankings.overall') ? 'active' : '' }}">総合</a>
-        @foreach(($competitions ?? collect()) as $c)
-            <a href="{{ route('rankings.competition', $c) }}"
-               class="{{ (request()->routeIs('rankings.competition') && request()->route('competition')->id === $c->id) ? 'active' : '' }}">
-                {{ $c->name }}
+        @foreach(($competitions ?? []) as $c)
+            <a href="{{ route('rankings.competition', $c->value) }}"
+               class="{{ (request()->routeIs('rankings.competition') && request()->route('competition') === $c) ? 'active' : '' }}">
+                {{ $c->label() }}
             </a>
         @endforeach
         <a href="{{ route('molkky.index') }}"
-           class="admin {{ request()->routeIs('molkky.*') ? 'active' : '' }}">モルック</a>
+           class="admin {{ request()->routeIs('molkky.*') ? 'active' : '' }}">モルック点数入力</a>
         <a href="{{ route('tools.timer') }}"
            class="{{ request()->routeIs('tools.timer') ? 'active' : '' }}">タイマー</a>
         <a href="{{ route('rules.molkky') }}"

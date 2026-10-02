@@ -1,9 +1,13 @@
 <?php
 
+use App\Enums\Competition;
 use App\Http\Controllers\MolkkyGameController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
+
+// 競技は enum なので明示的にバインド
+Route::bind('competition', fn($value) => Competition::tryFrom((int) $value) ?? abort(404));
 
 Route::get('/', [RankingController::class, 'overall'])->name('rankings.overall');
 

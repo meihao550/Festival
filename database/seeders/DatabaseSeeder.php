@@ -11,8 +11,6 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $this->call([
-            CompetitionSeeder::class,
-        ]);
+        // 競技マスタは App\Enums\Competition に移動したので seeder 不要
     }
 }

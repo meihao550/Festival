@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Competition;
+use App\Enums\Competition;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Score;
@@ -174,16 +174,13 @@ class MolkkyScoring
 
     private function syncMolkkyScores(Game $game): void
     {
-        $molkky = Competition::where('name', 'モルック')->first();
-        if (! $molkky) {
-            return;
-        }
+        $molkky = Competition::Molkky;
 
         foreach ($this->ranking($game) as $player) {
             Score::updateOrCreate(
                 [
                     'team_member_id' => $player->team_member_id,
-                    'competition_id' => $molkky->id,
+                    'competition_id' => $molkky->value,
                 ],
                 ['rank' => $player->final_rank],
             );
@@ -192,14 +189,11 @@ class MolkkyScoring
 
     private function clearMolkkyScores(Game $game): void
     {
-        $molkky = Competition::where('name', 'モルック')->first();
-        if (! $molkky) {
-            return;
-        }
+        $molkky = Competition::Molkky;
 
         $memberIds = $game->players()->pluck('team_member_id');
 
-        Score::where('competition_id', $molkky->id)
+        Score::where('competition_id', $molkky->value)
             ->whereIn('team_member_id', $memberIds)
             ->delete();
     }
