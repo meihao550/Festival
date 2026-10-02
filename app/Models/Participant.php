@@ -13,4 +13,9 @@ class Participant extends Model
     {
         return $this->hasMany(Score::class);
     }
+
+    public function players(): HasMany
+    {
+        return $this->hasMany(Player::class);
+    }
 }

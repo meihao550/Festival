@@ -86,6 +86,81 @@
         form input.rank-input { width: 5rem; text-align: right; padding: 0.4rem 0.5rem; }
         .plain-list { margin: 0; padding-left: 1.25rem; color: #374151; }
         .plain-list li { padding: 0.15rem 0; }
+        .btn-primary {
+            display: inline-block;
+            background: #4338ca; color: #fff;
+            padding: 0.6rem 1.2rem; border-radius: 8px;
+            text-decoration: none; font-size: 0.95rem;
+        }
+        .btn-primary:hover { background: #3730a3; }
+        .pill {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-live { background: #dbeafe; color: #1e3a8a; }
+        .pill-done { background: #d1fae5; color: #065f46; }
+        .pill-dq   { background: #fee2e2; color: #991b1b; }
+        .team-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .team-card { padding: 1rem; }
+        .team-card.is-current { outline: 3px solid #4338ca; }
+        .team-card.is-dq { opacity: 0.55; }
+        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .team-score { font-size: 2.4rem; font-weight: 700; margin: 0.25rem 0; color: #1f2937; font-variant-numeric: tabular-nums; }
+        .team-score .score-sep { color: #d1d5db; margin: 0 0.15rem; font-weight: 400; }
+        .team-score .score-max { color: #9ca3af; font-size: 1.2rem; font-weight: 500; }
+        .button-pad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .pad-btn {
+            margin: 0 !important;
+            padding: 1rem 0 !important;
+            font-size: 1.4rem !important;
+            font-weight: 700 !important;
+        }
+        .pad-btn.pad-miss {
+            grid-column: span 4;
+            background: #fef2f2 !important;
+            color: #b91c1c !important;
+            border: 1px solid #fecaca !important;
+        }
+        .team-block {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+        }
+        .team-block legend { padding: 0 0.4rem; }
+        .team-name-input { width: auto !important; max-width: 12rem; }
+        .participant-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+        .participant-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.65rem;
+            background: #f3f4f6;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin: 0 !important;
+        }
+        .participant-chip input { width: auto !important; margin: 0 !important; }
+        #add-team { background: transparent !important; color: #4338ca !important; border: 1px dashed #a5b4fc !important; }
         .alert {
             background: #ecfdf5;
             color: #047857;
@@ -118,8 +193,10 @@
                 {{ $c->name }}
             </a>
         @endforeach
+        <a href="{{ route('molkky.index') }}"
+           class="admin {{ request()->routeIs('molkky.*') ? 'active' : '' }}">モルック</a>
         <a href="{{ route('rules.molkky') }}"
-           class="admin {{ request()->routeIs('rules.molkky') ? 'active' : '' }}">モルックのルール</a>
+           class="{{ request()->routeIs('rules.molkky') ? 'active' : '' }}">ルール</a>
         <a href="{{ route('participants.create') }}"
            class="{{ request()->routeIs('participants.create') ? 'active' : '' }}">名前登録</a>
     </nav>
