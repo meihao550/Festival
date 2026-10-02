@@ -9,7 +9,7 @@ class CompetitionSeeder extends Seeder
 {
     public function run(): void
     {
-        $competitions = ['玉入れ', '綱引き', 'リレー'];
+        $competitions = ['モルック', 'Tore', 'VS嵐'];
 
         foreach ($competitions as $name) {
             Competition::firstOrCreate(['name' => $name]);
