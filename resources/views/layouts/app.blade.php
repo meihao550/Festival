@@ -74,6 +74,15 @@
             cursor: pointer;
         }
         form button:hover { background: #3730a3; }
+        form button.link-danger {
+            margin: 0;
+            padding: 0.25rem 0.6rem;
+            background: transparent;
+            color: #b91c1c;
+            font-size: 0.85rem;
+            border: 1px solid #fecaca;
+        }
+        form button.link-danger:hover { background: #fef2f2; }
         form input.rank-input { width: 5rem; text-align: right; padding: 0.4rem 0.5rem; }
         .plain-list { margin: 0; padding-left: 1.25rem; color: #374151; }
         .plain-list li { padding: 0.15rem 0; }

@@ -28,4 +28,14 @@ class ParticipantController extends Controller
             ->route('participants.create')
             ->with('status', "{$data['name']} を登録しました。");
     }
+
+    public function destroy(Participant $participant): RedirectResponse
+    {
+        $name = $participant->name;
+        $participant->delete();
+
+        return redirect()
+            ->route('participants.create')
+            ->with('status', "{$name} と関連する順位データを削除しました。");
+    }
 }

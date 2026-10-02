@@ -15,6 +15,8 @@ Route::get('/participants/create', [ParticipantController::class, 'create'])
     ->name('participants.create');
 Route::post('/participants', [ParticipantController::class, 'store'])
     ->name('participants.store');
+Route::delete('/participants/{participant}', [ParticipantController::class, 'destroy'])
+    ->name('participants.destroy');
 
 Route::view('/rules/molkky', 'rules.molkky')->name('rules.molkky');
 

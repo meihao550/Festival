@@ -21,11 +21,24 @@
     @if($participants->isNotEmpty())
         <div class="card" style="margin-top:1rem;">
             <h3 style="margin-top:0;">登録済みの参加者 ({{ $participants->count() }}名)</h3>
-            <ul class="plain-list">
-                @foreach($participants as $p)
-                    <li>{{ $p->name }}</li>
-                @endforeach
-            </ul>
+            <table>
+                <tbody>
+                    @foreach($participants as $p)
+                        <tr>
+                            <td>{{ $p->name }}</td>
+                            <td style="text-align:right; width:1%;">
+                                <form method="POST" action="{{ route('participants.destroy', $p) }}"
+                                      onsubmit="return confirm('{{ $p->name }} を削除します。この人の全競技の順位データも消えます。よろしいですか？');"
+                                      style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="link-danger">削除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @endif
 @endsection
