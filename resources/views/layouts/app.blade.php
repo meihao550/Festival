@@ -109,8 +109,10 @@
                 {{ $c->name }}
             </a>
         @endforeach
+        <a href="{{ route('rules.molkky') }}"
+           class="admin {{ request()->routeIs('rules.molkky') ? 'active' : '' }}">モルックのルール</a>
         <a href="{{ route('participants.create') }}"
-           class="admin {{ request()->routeIs('participants.create') ? 'active' : '' }}">名前登録</a>
+           class="{{ request()->routeIs('participants.create') ? 'active' : '' }}">名前登録</a>
     </nav>
     <main>
         @if(session('status'))

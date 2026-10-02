@@ -16,5 +16,7 @@ Route::get('/participants/create', [ParticipantController::class, 'create'])
 Route::post('/participants', [ParticipantController::class, 'store'])
     ->name('participants.store');
 
+Route::view('/rules/molkky', 'rules.molkky')->name('rules.molkky');
+
 // UI には出していないが、必要時に手動で叩けるよう維持
 Route::post('/reset', [RankingController::class, 'reset'])->name('rankings.reset');
