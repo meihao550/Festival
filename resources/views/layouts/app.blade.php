@@ -307,6 +307,27 @@
         }
         .errors ul { margin: 0.25rem 0 0 1rem; padding: 0; }
 
+        /* 総合ページのヘッダー行 */
+        .overall-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .refresh-btn {
+            padding: 0.4rem 0.9rem !important;
+            background: #eef2ff !important;
+            color: #4338ca !important;
+            border: 1px solid #c7d2fe !important;
+            border-radius: 999px !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .refresh-btn:hover { background: #e0e7ff !important; }
+
         /* 順位セル: 現在値 + 修正/入力ボタン */
         .rank-cell { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; }
         .rank-display {

@@ -4,8 +4,13 @@
 
 @section('content')
     <div class="card">
-        <h2 style="margin-top:0;">総合ランキング</h2>
-        <p style="color:#6b7280; font-size:0.9rem; margin-top:-0.5rem;">
+        <div class="overall-header">
+            <h2 style="margin:0;">総合ランキング</h2>
+            <button type="button" class="btn-ghost refresh-btn" onclick="window.location.reload()">
+                ↻ 更新
+            </button>
+        </div>
+        <p style="color:#6b7280; font-size:0.9rem; margin-top:0.5rem; margin-bottom:0;">
             チーム名をタップすると、そのチーム内の順位 (メンバーが取った 1 位の数で並び替え) が表示されます。
         </p>
 
