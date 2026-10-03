@@ -115,9 +115,15 @@
 
     <script>
         (function () {
-            // チームモーダル開閉
+            const WARN_MSG = '保存してから他の画面に遷移してください。';
+            let isDirty = false;
+            function markDirty()  { isDirty = true;  }
+            function markClean()  { isDirty = false; }
+
+            // チームモーダル開閉 (ダーティ時は離脱を阻止)
             document.querySelectorAll('.team-open-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
+                    if (isDirty) { alert(WARN_MSG); return; }
                     const dlg = document.getElementById('team-modal-' + btn.dataset.teamId);
                     if (!dlg) return;
                     if (typeof dlg.showModal === 'function') {
@@ -128,10 +134,45 @@
                     }
                 });
             });
+
             document.querySelectorAll('dialog.team-modal').forEach(function (dlg) {
+                // 背景クリックで閉じる
                 dlg.addEventListener('click', function (e) {
-                    if (e.target === dlg) dlg.close();
+                    if (e.target === dlg) {
+                        if (isDirty) { alert(WARN_MSG); return; }
+                        dlg.close();
+                    }
                 });
+                // ESC キー
+                dlg.addEventListener('cancel', function (e) {
+                    if (isDirty) { e.preventDefault(); alert(WARN_MSG); }
+                });
+                // × 閉じるボタン (form method=dialog の submit を奪う)
+                const closeForm = dlg.querySelector('.modal-close-wrap');
+                if (closeForm) {
+                    closeForm.addEventListener('submit', function (e) {
+                        if (isDirty) { e.preventDefault(); alert(WARN_MSG); }
+                    });
+                }
+                // 保存成功 (POST submit) でダーティ解除
+                dlg.querySelectorAll('form[action*="/ranks"]').forEach(function (form) {
+                    form.addEventListener('submit', function () { markClean(); });
+                });
+            });
+
+            // ナビなどのページ内リンク離脱
+            document.querySelectorAll('a[href]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    if (isDirty) { e.preventDefault(); alert(WARN_MSG); }
+                });
+            });
+
+            // タブ閉じ / リロード / 戻る
+            window.addEventListener('beforeunload', function (e) {
+                if (isDirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
             });
 
             // 順位ピッカー
@@ -162,6 +203,9 @@
             function setRank(val) {
                 if (!activeCell) return;
                 const hidden = activeCell.querySelector('input[type="hidden"]');
+                if (hidden.value !== val) {
+                    markDirty();
+                }
                 hidden.value = val;
                 // セル内 (hidden 以外) を状態に応じて置換
                 Array.from(activeCell.children).forEach(function (el) {
